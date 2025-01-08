@@ -6,3 +6,5 @@ It uses your phone for a controller.
 
 ## TODO
 - [ ] Make purtier
+- [ ] Use RPC stubs to add solutions
+- [ ] Build admin screen to show off

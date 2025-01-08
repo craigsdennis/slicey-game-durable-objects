@@ -6,8 +6,6 @@ export class GameDurableObject extends DurableObject {
 	sql: SqlStorage;
 	obstacles: any[];
 	solution: string[];
-	sentences: string[];
-	currentSentenceIndex: number;
 	obstacleInterval: NodeJS.Timeout | null;
 
 	constructor(ctx: DurableObjectState, env: Env) {
@@ -17,30 +15,25 @@ export class GameDurableObject extends DurableObject {
 		this.sql = ctx.storage.sql;
 		this.obstacles = [];
 		this.solution = [];
-		this.sentences = [
-			"This is built with Durable Objects",
-			"Each game is an instance",
-			"Every instance has its own SQLite storage",
-			"We are using WebSockets connections",
-			"The display is connected",
-			"And the phone is connected",
-		];
-		this.currentSentenceIndex = 0;
 		this.obstacleInterval = null;
 
-		console.log('Creating players...');
 		this.sql.exec(`CREATE TABLE IF NOT EXISTS players (
 			id TEXT PRIMARY KEY,
 			name TEXT NOT NULL,
 			color TEXT NOT NULL,
 			score INTEGER NOT NULL
 		);`);
-		console.log('Creating colors...');
 		this.sql.exec(`CREATE TABLE IF NOT EXISTS colors (
 			hex_code TEXT PRIMARY KEY,
 			is_available BOOLEAN NOT NULL DEFAULT TRUE
 		);`);
-		console.log('Inserting colors...');
+		this.sql.exec(`CREATE TABLE IF NOT EXISTS sentences (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			sentence TEXT NOT NULL,
+			is_completed BOOLEAN NOT NULL DEFAULT FALSE
+		);`);
+		// Durable Objects run the constructor when the wake up
+		// So if the data is already populated we don't need to do more
 		const { num_colors } = this.sql.exec(`SELECT count(*) as num_colors from colors`).one();
 		if (num_colors === 0) {
 			this.sql.exec(`INSERT INTO colors (hex_code) VALUES
@@ -56,22 +49,61 @@ export class GameDurableObject extends DurableObject {
 				('#FF6699');
 			`);
 		}
+		const { num_sentences } = this.sql.exec(`SELECT count(*) as num_sentences from sentences`).one();
+		if (num_sentences === 0) {
+			this.sql.exec(`INSERT INTO sentences (sentence) VALUES
+				('This is built with Durable Objects'),
+				('Points are based on the length of these words'),
+				('Each Game is its own separate instance'),
+				('Every instance has its own local SQLite instance for storage'),
+				('It is super fast'),
+				('Like instantaneous'),
+				('And you can have tons of these instances running at once'),
+				('Think of them like your own servers'),
+				('When this instance got created'),
+				('It was placed closest to the user requesting to create it'),
+				('That user was in TODO:X'),
+				('This Game is being served from our data center TODO:Y'),
+				('Durable Objects also are a nice solution for realtime apps'),
+				('Like this one'),
+				('They provide great WebSocket support'),
+				('Your phone is connected to this Durable Object via WebSocket'),
+				('As is this display you are staring at'),
+				('If you change your name on your phone from the default...'),
+				('...you will get an extra one thousand points'),
+				('Did you see how fast that leaderboard updated with your new name?'),
+				('All of this code is available in the footer'),
+				('⚡ THE NETWORK IS THE COMPUTER ⚡');
+			`);
+		}
 		console.log('Completed');
 		this.initializeObstacles();
 		this.startObstacleMovement();
 	}
 
-	initializeObstacles() {
-		const currentSentence = this.sentences[this.currentSentenceIndex].split(" ");
-		this.solution = Array(currentSentence.length).fill(null);
-		this.obstacles = currentSentence.map((word, index) => ({
+	async getCurrentSentence(): Promise<string> {
+		const { sentence } = this.sql.exec(`SELECT sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one();
+		return sentence as string;
+	}
+
+	async completeCurrentSentence() {
+		const { id, sentence } = this.sql.exec(`SELECT id, sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one();
+		this.sql.exec(`UPDATE sentences SET is_completed=true WHERE id=? ORDER BY id LIMIT 1`, id);
+		this.broadcast({event: 'sentence_completed', sentence});
+	}
+
+	async initializeObstacles() {
+		const currentSentence = await this.getCurrentSentence();
+		const words = currentSentence.split(" ");
+		this.solution = Array(words.length).fill(null);
+		this.obstacles = words.map((word, index) => ({
 			word,
 			x: Math.random() * 800, // Assume a canvas width of 800
 			y: Math.random() * 600, // Assume a canvas height of 600
 			dx: (Math.random() - 0.5) * 4,
 			dy: (Math.random() - 0.5) * 4,
 			index,
-			color: `hsl(${Math.random() * 360}, 70%, 70%)`
+			color: `hsl(${Math.random() * 360}, 70%, 70%)`,
 		}));
 		this.updateObstacles();
 	}
@@ -86,7 +118,7 @@ export class GameDurableObject extends DurableObject {
 	}
 
 	updateObstacles() {
-		this.obstacles.forEach(obstacle => {
+		this.obstacles.forEach((obstacle) => {
 			obstacle.x += obstacle.dx;
 			obstacle.y += obstacle.dy;
 
@@ -103,8 +135,8 @@ export class GameDurableObject extends DurableObject {
 		this.broadcast(data);
 	}
 
-	checkCollisions(phoneId: string, x: number, y: number): void {
-		this.obstacles = this.obstacles.filter(obstacle => {
+	async checkCollisions(phoneId: string, x: number, y: number): void {
+		this.obstacles = this.obstacles.filter((obstacle) => {
 			const distX = Math.abs(x - obstacle.x - 50);
 			const distY = Math.abs(y - obstacle.y - 15);
 
@@ -123,8 +155,8 @@ export class GameDurableObject extends DurableObject {
 		});
 
 		if (this.obstacles.length === 0) {
-			this.currentSentenceIndex = (this.currentSentenceIndex + 1) % this.sentences.length;
-			this.initializeObstacles();
+			await this.completeCurrentSentence();
+			await this.initializeObstacles();
 		}
 
 		this.updateObstacles();
@@ -133,14 +165,16 @@ export class GameDurableObject extends DurableObject {
 	sendPointsEarned(phoneId: string, points: number): void {
 		const phoneSocket = this.phones.get(phoneId);
 		if (phoneSocket) {
-			phoneSocket.send(JSON.stringify({
-				event: 'points_earned',
-				points
-			}));
+			phoneSocket.send(
+				JSON.stringify({
+					event: 'points_earned',
+					points,
+				})
+			);
 		}
 	}
 
-	async addPlayer(data) {
+	async addPlayer(data: {id: string, playerName: string}) {
 		console.log('Adding player', data);
 		const { hex_code } = this.sql.exec('SELECT hex_code FROM colors WHERE is_available=true LIMIT 1;').one();
 		console.log({ hex_code });
