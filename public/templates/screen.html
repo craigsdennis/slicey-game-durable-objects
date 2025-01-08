@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slicey Display</title>
+    <link rel="stylesheet" href="/styles.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-pUhApVQtLbnpLtJn6DuzDD5o2xtmLJnJ7oBoMsBnzOkVkpqofGLGPaBJ6ayD2zQe3lCgCibhJBi4cj5wAxwVKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <header>
+        <div>Slicey</div>
+        <div class="game-code">Code: <span id="gameCode">ABCD</span></div>
+		<canvas id="qr"></canvas>
+    </header>
+
+    <main>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </main>
+
+    <div class="player-list">
+        <h3>Players</h3>
+        <div id="players">
+            <!-- Players and points will be dynamically added here -->
+        </div>
+    </div>
+
+    <script src="/screen_controller.js"></script>
+	<script>
+		const qr = new QRious({
+			element: document.getElementById("qr"),
+			value: new URL(window.location).toString()
+		});
+	</script>
+</body>
+</html>

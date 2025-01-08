@@ -10,6 +10,10 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Worker, running it closer to your back-end infrastructure
 # rather than the end user may result in better performance.
@@ -56,9 +60,13 @@ enabled = true
 # Bind a Durable Object. Durable objects are a scale-to-zero compute primitive based on the actor model.
 # Durable Objects can live for as long as needed. Use these when you need a long-running "server", such as in realtime apps.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#durable-objects
-# [[durable_objects.bindings]]
-# name = "MY_DURABLE_OBJECT"
-# class_name = "MyDurableObject"
+[[durable_objects.bindings]]
+name = "GAME"
+class_name = "GameDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = [ "GameDurableObject" ]
 
 # Durable Object migrations.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#migrations

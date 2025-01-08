@@ -1,0 +1,41 @@
+/* styles.css */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+}
+
+input, button, a {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+input {
+    width: 200px;
+}
+
+button, a {
+    cursor: pointer;
+    background-color: #1e88e5;
+    color: #ffffff;
+}
+
+button:hover, a:hover {
+    background-color: #1565c0;
+}
