@@ -52,21 +52,20 @@ export class GameDurableObject extends DurableObject {
 		const { num_sentences } = this.sql.exec(`SELECT count(*) as num_sentences from sentences`).one();
 		if (num_sentences === 0) {
 			this.sql.exec(`INSERT INTO sentences (sentence) VALUES
-				('This is built with Durable Objects'),
-				('btw Points are based on the length of these words 💯'),
-				('Each Game is its completely own separate instance'),
+				('This is built with 🧡 using Durable Objects'),
+				('Points are based on the length of these words 💯'),
+				('So... each Game is its own separate instance'),
 				('Every instance has its own local SQLite instance for storage'),
 				('🏃‍♂️ It is super fast, like instantaneous 🏃‍♀️‍➡️'),
 				('You can have tons of these instances running all at once'),
-				('🧡 On Cloudflare''s global network, or like we like to call it Region: Earth 🌍'),
-				('Durable Objects also are a nice solution for realtime apps, like this one 🎮'),
-				('They provide great WebSocket support'),
-				('Your phone is connected to this Durable Object via WebSocket'),
-				('As is this display you are staring at'),
-				('If you change your name on your phone from the default...'),
+				('🧡 And they are all running on Cloudflare''s global network, or like we like to call it Region: Earth 🌍'),
+				('Durable Objects are an excellent solution for realtime apps, like this one 🎮'),
+				('Your phone 📱 is connected to this Durable Object instance via WebSocket'),
+				('🖥️ As is this display you are staring at'),
+				('If you change your name on your 📱 phone from the default...'),
 				('...you will get an extra one thousand points'),
 				('Did you see how fast that leaderboard updated with your new name?'),
-				('All of this code is available on this page, and your phone 📱'),
+				('All of this code 👨‍💻 🧑‍💻 is available on this page, and your phone 📱'),
 				('⚡ THE NETWORK IS THE COMPUTER ⚡');
 			`);
 		}

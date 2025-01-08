@@ -1,6 +1,5 @@
 // phone_controller.js
-const coin = new Audio('/coin.mp3');
-coin.play();
+
 // Generate WebSocket URL
 const urlParts = window.location.pathname.split('/');
 const gameCode = urlParts[urlParts.length - 1];
@@ -23,6 +22,34 @@ let assignedColor = '#ffffff';
 let lastMotionSentTime = 0;
 const motionThrottleInterval = 50; // 50ms
 
+// Audio element for points earned
+let audio;
+function initializeAudio() {
+    audio = new Audio('/coin.mp3');
+    document.body.addEventListener('click', () => {
+        // Trigger user interaction to enable audio playback
+        audio.play().catch(() => {});
+    }, { once: true });
+}
+initializeAudio();
+
+// Request motion sensor permissions on iOS
+async function requestMotionPermission() {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        try {
+            const permissionState = await DeviceMotionEvent.requestPermission();
+            if (permissionState !== 'granted') {
+                alert('Motion sensor access denied. This app will not function correctly.');
+            }
+        } catch (error) {
+            console.error('Error requesting motion permission:', error);
+        }
+    }
+}
+
+// Prompt for motion permission on page load
+requestMotionPermission();
+
 // Notify backend when phone connects and send initial data
 socket.addEventListener('open', () => {
     console.log('Phone connected to server');
@@ -42,7 +69,13 @@ socket.addEventListener('message', (event) => {
     }
 
     if (data.event === 'points_earned') {
-        coin.play();
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.play().catch(() => {
+                console.log('Audio play failed. Possibly due to user interaction restrictions.');
+            });
+        }
     }
 });
 
