@@ -90,23 +90,34 @@ function updateDisplay() {
     // Draw obstacles
     drawObstacles();
 
-    // Draw circles for each phone controlled by motion data
+    // Draw emojis with colored circles for each phone controlled by motion data
     Object.values(phonesData).forEach(phone => {
         if (phone.acceleration) {
             const { x, y } = phone.acceleration;
             const mappedX = -x * 50;
             const mappedY = -y * 50;
+
+            const centerX = canvas.width / 2 + mappedX;
+            const centerY = canvas.height / 2 + mappedY;
+
+            // Draw circle background
             ctx.beginPath();
-            ctx.arc(canvas.width / 2 + mappedX, canvas.height / 2 + mappedY, 20, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
             ctx.fillStyle = phone.color || 'blue';
             ctx.fill();
+
+            // Draw emoji
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'white';
+            ctx.fillText('📱', centerX, centerY + 10);
 
             // Send the player_moved event with x and y coordinates
             socket.send(JSON.stringify({
                 event: 'player_moved',
                 id: phone.id,
-                x: canvas.width / 2 + mappedX,
-                y: canvas.height / 2 + mappedY
+                x: centerX,
+                y: centerY
             }));
         }
     });
