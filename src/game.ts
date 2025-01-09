@@ -7,6 +7,7 @@ export class GameDurableObject extends DurableObject {
 	sql: SqlStorage;
 	obstacles: any[];
 	solution: string[];
+	displaySentence: string | null;
 	obstacleInterval: NodeJS.Timeout | null;
 
 	constructor(ctx: DurableObjectState, env: Env) {
@@ -16,6 +17,7 @@ export class GameDurableObject extends DurableObject {
 		this.sql = ctx.storage.sql;
 		this.obstacles = [];
 		this.solution = [];
+		this.displaySentence = null;
 		this.obstacleInterval = null;
 
 		this.sql.exec(`CREATE TABLE IF NOT EXISTS players (
@@ -146,13 +148,11 @@ export class GameDurableObject extends DurableObject {
 				this.sendPointsEarned(phoneId, obstacle.word.length);
 				return false; // Remove obstacle on collision
 			}
-
 			return true;
 		});
 
 		if (this.obstacles.length === 0) {
 			const sentence = this.getCurrentSentence();
-			this.broadcast({event: "obstacles_completed", sentence});
 			await this.completeCurrentSentence();
 			await this.initializeObstacles();
 		}
@@ -198,7 +198,7 @@ export class GameDurableObject extends DurableObject {
 		const cursor = this.sql.exec(`SELECT name, score FROM players ORDER BY score DESC;`);
 		const results = [];
 		for (const row of cursor) {
-			results.push({name: row.name as string, score: row.score as number});
+			results.push({ name: row.name as string, score: row.score as number });
 		}
 		return results;
 	}

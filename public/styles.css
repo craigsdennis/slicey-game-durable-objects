@@ -60,11 +60,6 @@ canvas {
 #sentenceCanvas {
     position: absolute;
     z-index: 3; /* Ensure it is on top of all other layers */
-    pointer-events: none; /* Allow clicks to pass through */
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    top: 0;
-    left: 0;
 }
 
 #phoneCanvas {

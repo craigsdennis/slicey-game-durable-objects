@@ -22,106 +22,134 @@ const backgroundCtx = backgroundCanvas.getContext('2d');
 const phoneCtx = phoneCanvas.getContext('2d');
 const sentenceCtx = sentenceCanvas.getContext('2d');
 
+
 // State for objects being controlled
 let phonesData = {}; // Store data for multiple phones
 let phoneDisplays = {}; // Store PhoneMovementDisplay instances for phones
 let players = []; // Player data
 let obstacles = []; // Obstacles to bounce
 let solution = []; // Initialize solution with placeholders
+let displaySentence = null; // Sentence to temporarily display
 let displayTimeout = null; // Timeout for clearing the sentence display
 
 // Function to draw the solution
 function drawSolution() {
-	backgroundCtx.fillStyle = 'white';
-	backgroundCtx.font = '20px Inter, "SF Pro", Arial, sans-serif';
-	backgroundCtx.textAlign = 'center';
-	const solutionText = solution.map((word) => (word ? word : '_')).join(' ');
-	backgroundCtx.fillText(solutionText, backgroundCanvas.width / 2, backgroundCanvas.height - 50);
+    backgroundCtx.fillStyle = 'white';
+    backgroundCtx.font = '20px Inter, "SF Pro", Arial, sans-serif';
+    backgroundCtx.textAlign = 'center';
+    const solutionText = solution.map(word => (word ? word : '_')).join(' ');
+    backgroundCtx.fillText(solutionText, backgroundCanvas.width / 2, backgroundCanvas.height - 50);
 }
 
 // Function to draw obstacles
 function drawObstacles() {
-	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
-	obstacles.forEach((obstacle) => {
-		const textWidth = backgroundCtx.measureText(obstacle.word).width;
-		const padding = 20;
-		const rectWidth = textWidth + padding;
-		const rectHeight = 30;
+    backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+    obstacles.forEach(obstacle => {
+        const textWidth = backgroundCtx.measureText(obstacle.word).width;
+        const padding = 20;
+        const rectWidth = textWidth + padding;
+        const rectHeight = 30;
 
-		backgroundCtx.fillStyle = obstacle.color;
-		backgroundCtx.fillRect(obstacle.x, obstacle.y, rectWidth, rectHeight);
-		backgroundCtx.fillStyle = 'white';
-		backgroundCtx.font = '14px Inter, "SF Pro", Arial, sans-serif';
-		backgroundCtx.textAlign = 'center';
-		backgroundCtx.fillText(obstacle.word, obstacle.x + rectWidth / 2, obstacle.y + rectHeight / 2 + 5);
-	});
+        backgroundCtx.fillStyle = obstacle.color;
+        backgroundCtx.fillRect(obstacle.x, obstacle.y, rectWidth, rectHeight);
+        backgroundCtx.fillStyle = 'white';
+        backgroundCtx.font = '14px Inter, "SF Pro", Arial, sans-serif';
+        backgroundCtx.textAlign = 'center';
+        backgroundCtx.fillText(obstacle.word, obstacle.x + rectWidth / 2, obstacle.y + rectHeight / 2 + 5);
+    });
+}
+
+function resetCanvases() {
+    console.log("Resetting canvases");
+
+    // Clear all layers explicitly
+    sentenceCtx.globalCompositeOperation = 'source-over';
+    phoneCtx.globalCompositeOperation = 'source-over';
+    backgroundCtx.globalCompositeOperation = 'source-over';
+
+    backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+    phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
+    sentenceCtx.clearRect(0, 0, sentenceCanvas.width, sentenceCanvas.height);
+
+    // Force transparency fill for debugging
+    backgroundCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+    backgroundCtx.fillRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+
+    phoneCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+    phoneCtx.fillRect(0, 0, phoneCanvas.width, phoneCanvas.height);
+
+    sentenceCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+    sentenceCtx.fillRect(0, 0, sentenceCanvas.width, sentenceCanvas.height);
+
+    console.log("All canvases cleared and transparency applied.");
 }
 
 // Function to temporarily display a completed sentence with word wrapping
-function drawCompletedSentence(sentence) {
-	sentenceCtx.clearRect(0, 0, sentenceCanvas.width, sentenceCanvas.height);
-	sentenceCtx.fillStyle = 'white';
-	sentenceCtx.font = '40px Inter, "SF Pro", Arial, sans-serif';
-	sentenceCtx.textAlign = 'center';
+function drawCompletedSentence() {
+    resetCanvases();
+    if (displaySentence) {
+        sentenceCtx.fillStyle = 'white';
+        sentenceCtx.font = '40px Inter, "SF Pro", Arial, sans-serif';
+        sentenceCtx.textAlign = 'center';
 
-	const words = sentence.split(' ');
-	const lineHeight = 50;
-	const maxWidth = backgrosentenceCanvasundCanvas.width * 0.8;
-	let line = '';
-	let y = sentenceCanvas.height / 2 - lineHeight;
+        const words = displaySentence.split(' ');
+        const lineHeight = 50;
+        const maxWidth = sentenceCanvas.width * 0.8;
+        let line = '';
+        let y = sentenceCanvas.height / 2 - lineHeight;
 
-	for (let i = 0; i < words.length; i++) {
-		const testLine = line + words[i] + ' ';
-		const testWidth = sentenceCtx.measureText(testLine).width;
-		if (testWidth > maxWidth && line) {
-			sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
-			line = words[i] + ' ';
-			y += lineHeight;
-		} else {
-			line = testLine;
-		}
-	}
-	sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
+        for (let i = 0; i < words.length; i++) {
+            const testLine = line + words[i] + ' ';
+            const testWidth = sentenceCtx.measureText(testLine).width;
+            if (testWidth > maxWidth && line) {
+                sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
+                line = words[i] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
+    }
 }
 
 // Function to update the display
 function updateDisplay() {
-	// Clear the phone canvas for a fresh frame
-	phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
+    if (displaySentence) {
+        drawCompletedSentence();
+        return;
+    }
+    // Clear the phone canvas for a fresh frame
+    phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
 
-	// Ensure phones are drawn last
-	Object.values(phonesData).forEach((phone) => {
-		if (!phoneDisplays[phone.id]) {
-			console.log(`[Display] Creating new PhoneMovementDisplay instance for phone ID: ${phone.id}`);
-			phoneDisplays[phone.id] = new PhoneMovementDisplay('phoneCanvas', '📱', phone.color || 'blue');
-		}
+    // Ensure phones are drawn last
+    Object.values(phonesData).forEach(phone => {
+        if (!phoneDisplays[phone.id]) {
+            phoneDisplays[phone.id] = new PhoneMovementDisplay('phoneCanvas', '📱', phone.color || 'blue');
+        }
 
-		const display = phoneDisplays[phone.id];
+        const display = phoneDisplays[phone.id];
 
-		// Update target position
-		if (phone.acceleration) {
-			const { x, y } = phone.acceleration;
-			const mappedX = phoneCanvas.width / 2 - x * 50;
-			const mappedY = phoneCanvas.height / 2 - y * 50;
+        // Update target position
+        if (phone.acceleration) {
+            const { x, y } = phone.acceleration;
+            const mappedX = phoneCanvas.width / 2 - x * 50;
+            const mappedY = phoneCanvas.height / 2 - y * 50;
 
-			console.log(`[Display] Updating PhoneMovementDisplay for phone ID: ${phone.id} to x=${mappedX}, y=${mappedY}`);
+            display.updateTargetPosition(mappedX, mappedY);
+            display.draw(); // Explicitly draw each phone here
 
-			display.updateTargetPosition(mappedX, mappedY);
-			display.draw(); // Explicitly draw each phone here
+            // Send the player_moved event with x and y coordinates
+            socket.send(JSON.stringify({
+                event: 'player_moved',
+                id: phone.id,
+                x: mappedX,
+                y: mappedY
+            }));
+        }
+    });
 
-			// Send the player_moved event with x and y coordinates
-			socket.send(
-				JSON.stringify({
-					event: 'player_moved',
-					id: phone.id,
-					x: mappedX,
-					y: mappedY,
-				})
-			);
-		}
-	});
-
-	requestAnimationFrame(updateDisplay);
+    requestAnimationFrame(updateDisplay);
 }
 
 // Start animation loop
@@ -129,72 +157,74 @@ updateDisplay();
 
 // Handle incoming WebSocket messages
 socket.addEventListener('message', (event) => {
-	const data = JSON.parse(event.data);
-	console.log('Received WebSocket message:', data);
+    const data = JSON.parse(event.data);
 
-	if (data.event === 'update_obstacles') {
-		obstacles = data.obstacles;
-		solution = data.solution;
-		drawObstacles(); // Redraw obstacles when updated
-		drawSolution();
-	}
+    if (data.event === 'update_obstacles') {
+        obstacles = data.obstacles;
+        solution = data.solution;
+        drawObstacles(); // Redraw obstacles when updated
+        drawSolution();
+    }
 
-	if (data.event === 'game_updated') {
-		players = data.players;
-		solution = data.solution;
-		updatePlayers();
-	}
+    if (data.event === 'game_updated') {
+        players = data.players;
+        solution = data.solution;
+        updatePlayers();
+    }
 
-	if (data.event === 'obstacles_completed') {
-		clearTimeout(displayTimeout);
-		drawCompletedSentence(sentence);
-		displayTimeout = setTimeout(() => {
-			drawObstacles();
-			drawSolution();
-		}, 3000); // Display the sentence for 3 seconds
-	}
+    if (data.event === 'sentence_completed') {
+        displaySentence = data.sentence;
+        clearTimeout(displayTimeout);
+        drawCompletedSentence();
+        displayTimeout = setTimeout(() => {
+            displaySentence = null;
+            resetCanvases();
+            drawObstacles();
+            drawSolution();
+            updateDisplay();
+        }, 3000); // Display the sentence for 3 seconds
+    }
 
-	if (data.id) {
-		// Assume each phone sends a unique ID
-		phonesData[data.id] = data;
-	}
+    if (data.id) { // Assume each phone sends a unique ID
+        phonesData[data.id] = data;
+    }
 });
 
 // Notify backend when display connects
 socket.addEventListener('open', () => {
-	console.log('WebSocket connection established with the server.');
-	socket.send(JSON.stringify({ event: 'display_connected' }));
+    console.log('WebSocket connection established with the server.');
+    socket.send(JSON.stringify({ event: 'display_connected' }));
 });
 
 socket.addEventListener('close', () => {
-	console.log('Display disconnected from server');
+    console.log('Display disconnected from server');
 });
 
 // Function to update player list
 function updatePlayers() {
-	const playersDiv = document.getElementById('players');
-	playersDiv.innerHTML = '';
+    const playersDiv = document.getElementById('players');
+    playersDiv.innerHTML = '';
 
-	const table = document.createElement('table');
-	const headerRow = document.createElement('tr');
-	headerRow.innerHTML = '<th>Name</th><th>Score</th>';
-	table.appendChild(headerRow);
+    const table = document.createElement('table');
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = '<th>Name</th><th>Score</th>';
+    table.appendChild(headerRow);
 
-	players.forEach((player) => {
-		const row = document.createElement('tr');
+    players.forEach(player => {
+        const row = document.createElement('tr');
 
-		const nameCell = document.createElement('td');
-		nameCell.textContent = player.name;
-		nameCell.style.backgroundColor = player.color;
-		nameCell.style.color = 'white'; // Ensure text is visible
+        const nameCell = document.createElement('td');
+        nameCell.textContent = player.name;
+        nameCell.style.backgroundColor = player.color;
+        nameCell.style.color = 'white'; // Ensure text is visible
 
-		const scoreCell = document.createElement('td');
-		scoreCell.textContent = player.score;
+        const scoreCell = document.createElement('td');
+        scoreCell.textContent = player.score;
 
-		row.appendChild(nameCell);
-		row.appendChild(scoreCell);
-		table.appendChild(row);
-	});
+        row.appendChild(nameCell);
+        row.appendChild(scoreCell);
+        table.appendChild(row);
+    });
 
-	playersDiv.appendChild(table);
+    playersDiv.appendChild(table);
 }

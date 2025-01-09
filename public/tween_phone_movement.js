@@ -4,7 +4,7 @@ class PhoneMovementDisplay {
     constructor(canvasId, icon = "📱", color = "#ff5722") {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) {
-            console.error(`[PhoneMovementDisplay] Canvas with ID '${canvasId}' not found.`);
+            //console.error(`[PhoneMovementDisplay] Canvas with ID '${canvasId}' not found.`);
             return;
         }
         this.context = this.canvas.getContext('2d');
@@ -19,12 +19,12 @@ class PhoneMovementDisplay {
         this.icon = icon; // Emoji or text for the phone
         this.color = color; // Background color for the phone representation
 
-        console.log(`[PhoneMovementDisplay] Created for canvas: ${canvasId}, color: ${color}, icon: ${icon}`);
+        // console.log(`[PhoneMovementDisplay] Created for canvas: ${canvasId}, color: ${color}, icon: ${icon}`);
 
         window.addEventListener('resize', () => {
             this.width = this.canvas.width;
             this.height = this.canvas.height;
-            console.log('[PhoneMovementDisplay] Canvas resized.');
+            //console.log('[PhoneMovementDisplay] Canvas resized.');
         });
 
         this.initAnimationLoop();
@@ -33,7 +33,7 @@ class PhoneMovementDisplay {
     updateTargetPosition(x, y) {
         this.target.x = x;
         this.target.y = y;
-        console.log(`[PhoneMovementDisplay] Target updated to: x=${x}, y=${y}`);
+        //console.log(`[PhoneMovementDisplay] Target updated to: x=${x}, y=${y}`);
     }
 
     customizeAppearance({ icon, color, radius, stretchFactor }) {
@@ -51,7 +51,7 @@ class PhoneMovementDisplay {
         this.current.x += dx * 0.1;
         this.current.y += dy * 0.1;
 
-        console.log(`[PhoneMovementDisplay] Drawing: current x=${this.current.x}, y=${this.current.y}, target x=${this.target.x}, y=${this.target.y}`);
+        // console.log(`[PhoneMovementDisplay] Drawing: current x=${this.current.x}, y=${this.current.y}, target x=${this.target.x}, y=${this.target.y}`);
 
         // Stretching effect
         const stretchX = 1 + (Math.abs(dx) / this.width) * this.stretchFactor;
