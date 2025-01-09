@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import { randomHexColorWithWhiteText } from './utils';
 
 export class GameDurableObject extends DurableObject {
 	phones: Map<string, WebSocket>;
@@ -24,10 +25,6 @@ export class GameDurableObject extends DurableObject {
 			received_name_change_bonus BOOLEAN NOT NULL DEFAULT FALSE,
 			score INTEGER NOT NULL
 		);`);
-		this.sql.exec(`CREATE TABLE IF NOT EXISTS colors (
-			hex_code TEXT PRIMARY KEY,
-			is_available BOOLEAN NOT NULL DEFAULT TRUE
-		);`);
 		this.sql.exec(`CREATE TABLE IF NOT EXISTS sentences (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			sentence TEXT NOT NULL,
@@ -35,21 +32,6 @@ export class GameDurableObject extends DurableObject {
 		);`);
 		// Durable Objects run the constructor when the wake up
 		// So if the data is already populated we don't need to do more
-		const { num_colors } = this.sql.exec(`SELECT count(*) as num_colors from colors`).one();
-		if (num_colors === 0) {
-			this.sql.exec(`INSERT INTO colors (hex_code) VALUES
-				('#FF5733'),
-				('#33FF57'),
-				('#3357FF'),
-				('#FFFF33'),
-				('#FF33FF'),
-				('#33FFFF'),
-				('#FF9966'),
-				('#66FF99'),
-				('#9966FF'),
-				('#FF6699');
-			`);
-		}
 		const { num_sentences } = this.sql.exec(`SELECT count(*) as num_sentences from sentences`).one();
 		if (num_sentences === 0) {
 			this.sql.exec(`INSERT INTO sentences (sentence) VALUES
@@ -169,13 +151,10 @@ export class GameDurableObject extends DurableObject {
 
 	async addPlayer(data: { id: string; playerName: string }) {
 		console.log('Adding player', data);
-		const { hex_code } = this.sql.exec('SELECT hex_code FROM colors WHERE is_available=true LIMIT 1;').one();
-		console.log({ hex_code });
+		const hex_code  = randomHexColorWithWhiteText();
 		const player = this.sql
 			.exec('INSERT INTO players (id, name, color, score) VALUES (?, ?, ?, ?) RETURNING *;', data.id, data.playerName, hex_code, 0)
 			.one();
-		console.log({ player });
-		this.sql.exec(`UPDATE colors SET is_available=false WHERE hex_code=?;`, hex_code);
 		return player;
 	}
 
