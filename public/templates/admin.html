@@ -6,6 +6,9 @@
     <title>Game Admin</title>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 </head>
 <body>
     <main class="content-wrapper">
@@ -26,6 +29,25 @@
                 </table>
             </div>
 
+            <details>
+                <summary>👨‍💻👩‍💻 Example - Retrieve data from Durable Objects programatically</summary>
+                <pre><code class="language-javascript">
+// This is a Hono 🔥 endpoint
+// It handles GET requests
+app.get('/api/game/:gameId/leaderboard', async(c) => {
+	const gameId = c.req.param("gameId");
+	// Get the Durable Object ID
+	const id = c.env.GAME.idFromName(gameId);
+	// Fetch the stub
+	const stub = c.env.GAME.get(id);
+	// Use RPC (Remote Procedure Call) methods to talk to the actual Durable Object
+	const players = await stub.getLeaderBoard();
+	// Return values
+	return c.json({players});
+});
+                </code></pre>
+            </details>
+
             <div id="sentence-form">
                 <h2>Add a New Sentence</h2>
                 <form id="addSentenceForm">
@@ -34,6 +56,22 @@
                     <button type="submit">Add Sentence</button>
                 </form>
             </div>
+			<details>
+                <summary>👨‍💻👩‍💻 Example - Add data to Durable Objects programatically</summary>
+                <pre><code class="language-javascript">
+// This is a Hono 🔥 endpoint
+// It handles JSON POST requests
+app.post('/api/game/:gameId/sentences', async(c) => {
+	const payload = await c.req.json();
+	const gameId = c.req.param("gameId");
+	// Get the Durable Object ID
+	const id = c.env.GAME.idFromName(gameId);
+    const stub = c.env.GAME.get(id);
+	await stub.addSentence(payload.sentence);
+	return c.json({success: true});
+});
+                </code></pre>
+            </details>
         </div>
     </main>
     <footer>
@@ -73,7 +111,6 @@
                     body: JSON.stringify({ sentence: newSentence })
                 });
                 addSentenceForm.reset();
-                alert('Sentence added successfully!');
             });
 
             // Initial fetch of leaderboard

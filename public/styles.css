@@ -47,7 +47,7 @@ canvas {
     aspect-ratio: 4 / 3; /* Matches the 800x600 assumption */
 }
 
-input, button, .content-wrapper a {
+button, .content-wrapper a {
     margin: 10px 0;
     padding: 10px;
     font-size: 1em;
@@ -66,6 +66,16 @@ input, button, .content-wrapper a {
 
 input {
     width: 200px;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    background-color: #ffffff;
+    color: #000000;
 }
 
 button, .content-wrapper a {

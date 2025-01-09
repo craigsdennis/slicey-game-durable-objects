@@ -53,26 +53,36 @@ export class GameDurableObject extends DurableObject {
 		}
 		console.log('Completed');
 		this.initializeObstacles();
-		this.startObstacleMovement();
 	}
 
-	async getCurrentSentence(): Promise<string> {
-		const { sentence } = this.sql.exec(`SELECT sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one();
-		return sentence as string;
+	async getCurrentSentence(): Promise<string | null> {
+		const { sentence } = this.sql.exec(`SELECT sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one() || {};
+		return sentence || null;
 	}
 
 	async completeCurrentSentence() {
-		const { id, sentence } = this.sql.exec(`SELECT id, sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one();
-		this.sql.exec(`UPDATE sentences SET is_completed=true WHERE id=? ORDER BY id LIMIT 1`, id);
-		this.broadcast({ event: 'sentence_completed', sentence });
+		const { id, sentence } = this.sql.exec(`SELECT id, sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one() || {};
+		if (id) {
+			this.sql.exec(`UPDATE sentences SET is_completed=true WHERE id=? ORDER BY id LIMIT 1`, id);
+			this.broadcast({ event: 'sentence_completed', sentence });
+		}
 	}
 
 	async addSentence(sentence: string) {
 		this.sql.exec(`INSERT INTO sentences (sentence) VALUES (?)`, sentence);
+		this.broadcast({ event: 'sentence_added', sentence });
+		if (!this.obstacleInterval) {
+			this.initializeObstacles();
+			this.startObstacleMovement();
+		}
 	}
 
 	async initializeObstacles() {
 		const currentSentence = await this.getCurrentSentence();
+		if (!currentSentence) {
+			this.stopObstacleMovement();
+			return;
+		}
 		const words = currentSentence.split(' ');
 		this.solution = Array(words.length).fill(null);
 		this.obstacles = words.map((word, index) => ({
@@ -94,6 +104,13 @@ export class GameDurableObject extends DurableObject {
 		this.obstacleInterval = setInterval(() => {
 			this.updateObstacles();
 		}, 100); // Update every 100ms
+	}
+
+	stopObstacleMovement() {
+		if (this.obstacleInterval) {
+			clearInterval(this.obstacleInterval);
+			this.obstacleInterval = null;
+		}
 	}
 
 	updateObstacles() {
