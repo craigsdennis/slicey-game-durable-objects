@@ -67,6 +67,10 @@ export class GameDurableObject extends DurableObject {
 		this.broadcast({ event: 'sentence_completed', sentence });
 	}
 
+	async addSentence(sentence: string) {
+		this.sql.exec(`INSERT INTO sentences (sentence) VALUES (?)`, sentence);
+	}
+
 	async initializeObstacles() {
 		const currentSentence = await this.getCurrentSentence();
 		const words = currentSentence.split(' ');
@@ -171,6 +175,15 @@ export class GameDurableObject extends DurableObject {
 		this.broadcastUpdate();
 	}
 
+	async getLeaderBoard() {
+		const cursor = this.sql.exec(`SELECT name, score FROM players ORDER BY score DESC;`);
+		const results = [];
+		for (const row of cursor) {
+			results.push({name: row.name as string, score: row.score as number});
+		}
+		return results;
+	}
+
 	async broadcastUpdate() {
 		const cursor = this.sql.exec(`SELECT * FROM players ORDER BY score DESC;`);
 		const players = [];
@@ -214,6 +227,9 @@ export class GameDurableObject extends DurableObject {
 					break;
 				case 'player_moved':
 					this.checkCollisions(data.id, data.x, data.y);
+					break;
+				case 'sentence_added':
+					this.initializeObstacles();
 					break;
 				default:
 					this.broadcast(data, server);

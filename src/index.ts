@@ -46,8 +46,6 @@ async function getHtmlTemplate(c: Context, name: string) {
 	return new Response(asset.readableStream, { headers: { 'Content-Type': asset.contentType } });
 }
 
-
-// Placeholder for game room logic
 app.get('/game/:id', (c) => {
     const gameId = c.req.param('id');
 	const faked = c.req.query("faked");
@@ -62,6 +60,29 @@ app.get('/game/:id', (c) => {
 	} else {
 		return getHtmlTemplate(c, "/templates/screen.html");
 	}
+});
+
+app.get('/game/:id/admin', (c) => {
+	return getHtmlTemplate(c, "/templates/admin.html");
+});
+
+app.get('/api/game/:gameId/leaderboard', async(c) => {
+	const gameId = c.req.param("gameId");
+	// Get the Durable Object ID
+	const id = c.env.GAME.idFromName(gameId);
+    const stub = c.env.GAME.get(id);
+	const players = await stub.getLeaderBoard();
+	return c.json({players});
+});
+
+app.post('/api/game/:gameId/sentences', async(c) => {
+	const payload = await c.req.json();
+	const gameId = c.req.param("gameId");
+	// Get the Durable Object ID
+	const id = c.env.GAME.idFromName(gameId);
+    const stub = c.env.GAME.get(id);
+	await stub.addSentence(payload.sentence);
+	return c.json({success: true});
 });
 
 export default app;

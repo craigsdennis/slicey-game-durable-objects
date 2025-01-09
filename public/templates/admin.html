@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="content-wrapper">
+        <div class="container">
+            <h1>Game Admin</h1>
+            <div id="leaderboard">
+                <h2>Leaderboard</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players">
+                        <!-- Players and scores will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="sentence-form">
+                <h2>Add a New Sentence</h2>
+                <form id="addSentenceForm">
+                    <label for="newSentence">Sentence:</label>
+                    <input type="text" id="newSentence" name="sentence" placeholder="Enter a new sentence" required>
+                    <button type="submit">Add Sentence</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
+        <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameId = window.location.pathname.split('/')[2];
+
+            // Fetch leaderboard data
+            async function fetchLeaderboard() {
+                const response = await fetch(`/api/game/${gameId}/leaderboard`);
+                const data = await response.json();
+                const playersTable = document.getElementById('players');
+                playersTable.innerHTML = '';
+                data.players.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${player.name}</td>
+                        <td>${player.score}</td>
+                    `;
+                    playersTable.appendChild(row);
+                });
+            }
+
+            // Submit new sentence
+            const addSentenceForm = document.getElementById('addSentenceForm');
+            addSentenceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newSentence = document.getElementById('newSentence').value;
+                await fetch(`/api/game/${gameId}/sentences`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sentence: newSentence })
+                });
+                addSentenceForm.reset();
+                alert('Sentence added successfully!');
+            });
+
+            // Initial fetch of leaderboard
+            fetchLeaderboard();
+        });
+    </script>
+</body>
+</html>

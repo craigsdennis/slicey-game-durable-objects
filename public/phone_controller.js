@@ -61,22 +61,27 @@ function initializeAudio() {
 }
 initializeAudio();
 
-// Request motion sensor permissions on iOS
-async function requestMotionPermission() {
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+// Add button for motion sensor permissions on iOS
+if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    const motionPermissionButton = document.createElement('button');
+    motionPermissionButton.textContent = 'Request Permission to Motion Info';
+    motionPermissionButton.style.position = 'absolute';
+    motionPermissionButton.style.top = '10px';
+    motionPermissionButton.style.left = '10px';
+    motionPermissionButton.addEventListener('click', async () => {
         try {
             const permissionState = await DeviceMotionEvent.requestPermission();
-            if (permissionState !== 'granted') {
+            if (permissionState === 'granted') {
+                motionPermissionButton.remove(); // Remove button after permission is granted
+            } else {
                 alert('Motion sensor access denied. The app may not function correctly.');
             }
         } catch (error) {
             console.error('Error requesting motion permission:', error);
         }
-    }
+    });
+    document.body.appendChild(motionPermissionButton);
 }
-
-// Prompt for motion permission on page load
-requestMotionPermission();
 
 // Notify backend when phone connects and send initial data
 socket.addEventListener('open', () => {
