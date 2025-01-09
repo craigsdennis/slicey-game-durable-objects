@@ -9,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="content-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
-        <div style="display: flex; flex-direction: row; align-items: flex-start;">
-            <aside style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-right: 20px;">
-                <h1 style="margin-bottom: 10px;">Slicey</h1>
+    <div class="content-wrapper">
+        <div class="flex-row">
+            <aside class="aside">
+                <h1>Slicey</h1>
                 <div class="game-code">Code: <span id="gameCode">ABCD</span></div>
-                <canvas id="qr" style="margin-bottom: 10px;"></canvas>
+                <canvas id="qr"></canvas>
                 <div class="player-list">
                     <h3>Leaderboard</h3>
                     <div id="players">
@@ -22,8 +22,10 @@
                     </div>
                 </div>
             </aside>
-            <main style="display: flex; justify-content: center; align-items: center;">
-                <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <main class="main">
+                <canvas id="backgroundCanvas" width="800" height="600"></canvas>
+                <canvas id="phoneCanvas" width="800" height="600"></canvas>
+                <canvas id="sentenceCanvas" width="800" height="600"></canvas>
             </main>
         </div>
     </div>
@@ -31,8 +33,10 @@
         <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
         <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
     </footer>
-    <script src="/screen_controller.js"></script>
-    <script>
+    <script type="module">
+        import '/tween_phone_movement.js';
+        import '/screen_controller.js';
+
         const qr = new QRious({
             element: document.getElementById("qr"),
             value: new URL(window.location).toString()

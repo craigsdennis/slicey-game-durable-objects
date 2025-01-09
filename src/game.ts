@@ -44,9 +44,9 @@ export class GameDurableObject extends DurableObject {
 				('🧡 And they are all running on Cloudflare''s global network, or like we like to call it, Region: Earth 🌍'),
 				('Durable Objects are an excellent solution for realtime apps, like this one 🎮'),
 				('Your phone 📱 and the display 🖥️  are connected to this Durable Object instance via WebSockets'),
-				('If you change your name on your 📱 phone from the default...'),
+				('🤔 If you change your name on your 📱 phone from the default...'),
 				('...you will get an extra one thousand points'),
-				('Did you see how fast that leaderboard updated with your new name?'),
+				('👀 Did you see how fast that leaderboard updated with your new name?'),
 				('All of this code 👨‍💻 🧑‍💻 is available on this page, and your phone 📱'),
 				('⚡ THE NETWORK IS THE COMPUTER ® ⚡');
 			`);
@@ -57,7 +57,7 @@ export class GameDurableObject extends DurableObject {
 
 	async getCurrentSentence(): Promise<string | null> {
 		const { sentence } = this.sql.exec(`SELECT sentence FROM sentences WHERE is_completed=false ORDER BY id LIMIT 1;`).one() || {};
-		return sentence || null;
+		return sentence as string;
 	}
 
 	async completeCurrentSentence() {
@@ -151,6 +151,8 @@ export class GameDurableObject extends DurableObject {
 		});
 
 		if (this.obstacles.length === 0) {
+			const sentence = this.getCurrentSentence();
+			this.broadcast({event: "obstacles_completed", sentence});
 			await this.completeCurrentSentence();
 			await this.initializeObstacles();
 		}

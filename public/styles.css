@@ -13,14 +13,18 @@ body {
 .content-wrapper {
     flex: 1;
     display: flex;
-    flex-direction: column; /* Align items vertically */
-    justify-content: center; /* Center vertically */
-    align-items: center; /* Center horizontally */
+    flex-direction: row; /* Align items horizontally */
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* Align items at the top */
+    gap: 20px;
 }
 
 aside {
     flex: 1;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 main {
@@ -28,26 +32,47 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .container {
     text-align: center;
 }
 
-canvas {
-    border: 5px solid #383838;
-    display: block;
+.canvas-wrapper {
+    position: relative;
+    width: 800px;
+    height: 600px;
     margin: 0 auto;
 }
 
-#game {
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    aspect-ratio: 4 / 3; /* Matches the 800x600 assumption */
+canvas {
+    display: block;
+    margin: 0 auto;
+    border: 5px solid #383838;
 }
 
-button, .content-wrapper a {
+#backgroundCanvas {
+    position: absolute;
+    z-index: 1;
+}
+
+#sentenceCanvas {
+    position: absolute;
+    z-index: 3; /* Ensure it is on top of all other layers */
+    pointer-events: none; /* Allow clicks to pass through */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    top: 0;
+    left: 0;
+}
+
+#phoneCanvas {
+    position: absolute;
+    z-index: 2;
+}
+
+button, input {
     margin: 10px 0;
     padding: 10px;
     font-size: 1em;
@@ -56,36 +81,25 @@ button, .content-wrapper a {
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    background-color: #1e88e5;
-    color: #ffffff;
+    font-family: 'Inter', 'SF Pro', Arial, sans-serif;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.content-wrapper a:hover {
-    background-color: #1565c0;
-}
-
-input {
-    width: 200px;
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-    background-color: #ffffff;
-    color: #000000;
-}
-
-button, .content-wrapper a {
+button {
     cursor: pointer;
     background-color: #1e88e5;
     color: #ffffff;
 }
 
-button:hover, .content-wrapper a:hover {
+button:hover, input:focus {
     background-color: #1565c0;
+    box-shadow: 0 0 10px #1e88e5;
+}
+
+input {
+    background-color: #ffffff;
+    color: #000000;
+    text-align: center;
 }
 
 footer {
@@ -97,6 +111,8 @@ footer {
     padding: 5px;
     font-family: 'Inter', 'SF Pro', Arial, sans-serif;
     line-height: 1.2;
+    word-wrap: break-word;
+    font-size: 0.9em;
 }
 
 footer a {
