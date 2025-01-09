@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Controller</title>
+    <title>Slicey</title>
     <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Slicey</h1>
-        <form id="gameForm">
-            <a href="/create" id="createGame">Create Game (host the screen)</a>
-			<hr/>
-			<strong>OR</strong>
-			<hr/>
-			<input type="text" id="gameId" placeholder="Enter Game ID (e.g., ABCD)" maxlength="4" pattern="[A-Z]{4}" title="4 uppercase letters" /><button type="button" id="joinGame">Join Game</button>
-        </form>
-    </div>
+    <main class="content-wrapper">
+        <div class="container">
+            <h1>Welcome to Slicey</h1>
+            <form id="gameForm">
+				<div>
+					<a href="/create" id="createGame">Create Game</a>
+				</div>
+				<div>
+					<input type="text" id="gameId" placeholder="Enter Game ID (e.g., ABCD)" maxlength="4" pattern="[A-Z]{4}" title="4 uppercase letters" /><button type="button" id="joinGame">Join Game</button>
+				</div>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
+        <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
+    </footer>
     <script>
         document.getElementById('joinGame').addEventListener('click', async () => {
             const gameId = document.getElementById('gameId').value;

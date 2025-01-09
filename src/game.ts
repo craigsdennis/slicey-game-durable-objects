@@ -73,8 +73,8 @@ export class GameDurableObject extends DurableObject {
 		this.solution = Array(words.length).fill(null);
 		this.obstacles = words.map((word, index) => ({
 			word,
-			x: Math.random() * 800, // Assume a canvas width of 800
-			y: Math.random() * 600, // Assume a canvas height of 600
+			x: Math.random() * (800 - 100), // Adjusted to ensure obstacles spawn within bounds
+			y: Math.random() * (600 - 30), // Adjusted to ensure obstacles spawn within bounds
 			dx: (Math.random() - 0.5) * 4,
 			dy: (Math.random() - 0.5) * 4,
 			index,
@@ -151,7 +151,7 @@ export class GameDurableObject extends DurableObject {
 
 	async addPlayer(data: { id: string; playerName: string }) {
 		console.log('Adding player', data);
-		const hex_code  = randomHexColorWithWhiteText();
+		const hex_code = randomHexColorWithWhiteText();
 		const player = this.sql
 			.exec('INSERT INTO players (id, name, color, score) VALUES (?, ?, ?, ?) RETURNING *;', data.id, data.playerName, hex_code, 0)
 			.one();
