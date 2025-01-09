@@ -22,6 +22,34 @@ let assignedColor = '#ffffff';
 let lastMotionSentTime = 0;
 const motionThrottleInterval = 50; // 50ms
 
+// Prevent phone from sleeping
+let wakeLock = null;
+async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log('Wake lock is active');
+
+            wakeLock.addEventListener('release', () => {
+                console.log('Wake lock was released');
+            });
+        } catch (err) {
+            console.error('Failed to acquire wake lock:', err);
+        }
+    } else {
+        console.log('Wake Lock API not supported');
+    }
+}
+
+// Re-request wake lock on visibility change
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && wakeLock === null) {
+        requestWakeLock();
+    }
+});
+
+requestWakeLock();
+
 // Audio element for points earned
 let audio;
 function initializeAudio() {
@@ -39,7 +67,7 @@ async function requestMotionPermission() {
         try {
             const permissionState = await DeviceMotionEvent.requestPermission();
             if (permissionState !== 'granted') {
-                alert('Motion sensor access denied. This app will not function correctly.');
+                alert('Motion sensor access denied. The app may not function correctly.');
             }
         } catch (error) {
             console.error('Error requesting motion permission:', error);

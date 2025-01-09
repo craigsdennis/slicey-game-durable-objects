@@ -5,32 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slicey Display</title>
     <link rel="stylesheet" href="/styles.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-pUhApVQtLbnpLtJn6DuzDD5o2xtmLJnJ7oBoMsBnzOkVkpqofGLGPaBJ6ayD2zQe3lCgCibhJBi4cj5wAxwVKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-pUhApVQtLbnpLtJn6DuzDD5o2xtmLJnJ7oBoMsBnzOkVkpqofGLGPaBJ6ayD2zQe3lCgCibhJBi4cj5wAxwVKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div>Slicey</div>
-        <div class="game-code">Code: <span id="gameCode">ABCD</span></div>
-		<canvas id="qr"></canvas>
-    </header>
-
-    <main>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-    </main>
-
-    <div class="player-list">
-        <h3>Players</h3>
-        <div id="players">
-            <!-- Players and points will be dynamically added here -->
+    <div class="content-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
+        <div style="display: flex; flex-direction: row; align-items: flex-start;">
+            <aside style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-right: 20px;">
+                <h1 style="margin-bottom: 10px;">Slicey</h1>
+                <div class="game-code">Code: <span id="gameCode">ABCD</span></div>
+                <canvas id="qr" style="margin-bottom: 10px;"></canvas>
+                <div class="player-list">
+                    <h3>Leaderboard</h3>
+                    <div id="players">
+                        <!-- Players and points will be dynamically added here -->
+                    </div>
+                </div>
+            </aside>
+            <main style="display: flex; justify-content: center; align-items: center;">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+            </main>
         </div>
     </div>
-
+    <footer>
+        <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
+        <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
+    </footer>
     <script src="/screen_controller.js"></script>
-	<script>
-		const qr = new QRious({
-			element: document.getElementById("qr"),
-			value: new URL(window.location).toString()
-		});
-	</script>
+    <script>
+        const qr = new QRious({
+            element: document.getElementById("qr"),
+            value: new URL(window.location).toString()
+        });
+    </script>
 </body>
 </html>

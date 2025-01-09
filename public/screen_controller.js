@@ -26,7 +26,7 @@ let displayTimeout = null; // Timeout for clearing the sentence display
 // Function to draw the solution
 function drawSolution() {
     ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
+    ctx.font = '20px Inter, "SF Pro", Arial, sans-serif';
     ctx.textAlign = 'center';
     const solutionText = solution.map(word => (word ? word : '_')).join(' ');
     ctx.fillText(solutionText, canvas.width / 2, canvas.height - 50);
@@ -43,7 +43,7 @@ function drawObstacles() {
         ctx.fillStyle = obstacle.color;
         ctx.fillRect(obstacle.x, obstacle.y, rectWidth, rectHeight);
         ctx.fillStyle = 'white';
-        ctx.font = '14px Arial';
+        ctx.font = '14px Inter, "SF Pro", Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(obstacle.word, obstacle.x + rectWidth / 2, obstacle.y + rectHeight / 2 + 5);
     });
@@ -54,7 +54,7 @@ function drawCompletedSentence() {
     if (displaySentence) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'white';
-        ctx.font = '40px Arial';
+        ctx.font = '40px Inter, "SF Pro", Arial, sans-serif';
         ctx.textAlign = 'center';
 
         const words = displaySentence.split(' ');
@@ -107,7 +107,7 @@ function updateDisplay() {
             ctx.fill();
 
             // Draw emoji
-            ctx.font = '30px Arial';
+            ctx.font = '30px Inter, "SF Pro", Arial, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillStyle = 'white';
             ctx.fillText('📱', centerX, centerY + 10);

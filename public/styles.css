@@ -2,20 +2,52 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', 'SF Pro', Arial, sans-serif;
     background-color: #121212;
     color: #ffffff;
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+}
+
+aside {
+    flex: 1;
+    padding: 10px;
+}
+
+main {
+    flex: 3;
+    display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
 }
 
 .container {
     text-align: center;
 }
 
-input, button, a {
+canvas {
+    border: 5px solid #383838;
+    display: block;
+    margin: 0 auto;
+}
+
+#game {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    aspect-ratio: 4 / 3; /* Matches the 800x600 assumption */
+}
+
+input, button, .content-wrapper a {
     margin: 10px 0;
     padding: 10px;
     font-size: 1em;
@@ -24,18 +56,44 @@ input, button, a {
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    background-color: #1e88e5;
+    color: #ffffff;
+}
+
+.content-wrapper a:hover {
+    background-color: #1565c0;
 }
 
 input {
     width: 200px;
 }
 
-button, a {
+button, .content-wrapper a {
     cursor: pointer;
     background-color: #1e88e5;
     color: #ffffff;
 }
 
-button:hover, a:hover {
+button:hover, .content-wrapper a:hover {
     background-color: #1565c0;
+}
+
+footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #313131;
+    color: #ffffff;
+    text-align: center;
+    padding: 5px;
+    font-family: 'Inter', 'SF Pro', Arial, sans-serif;
+    line-height: 1.2;
+}
+
+footer a {
+    color: #f6821f;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
 }
