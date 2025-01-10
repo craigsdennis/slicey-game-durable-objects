@@ -8,7 +8,7 @@ export class GameDurableObject extends DurableObject {
 	obstacles: any[];
 	solution: string[];
 	displaySentence: string | null;
-	obstacleInterval: NodeJS.Timeout | null;
+	obstacleInterval: ReturnType<typeof setInterval> | null;
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
@@ -75,7 +75,6 @@ export class GameDurableObject extends DurableObject {
 		this.broadcast({ event: 'sentence_added', sentence });
 		if (!this.obstacleInterval) {
 			this.initializeObstacles();
-			this.startObstacleMovement();
 		}
 	}
 
@@ -96,7 +95,7 @@ export class GameDurableObject extends DurableObject {
 			index,
 			color: `hsl(${Math.random() * 360}, 70%, 70%)`,
 		}));
-		this.updateObstacles();
+		this.startObstacleMovement();
 	}
 
 	startObstacleMovement() {
@@ -124,16 +123,10 @@ export class GameDurableObject extends DurableObject {
 			if (obstacle.x < 0 || obstacle.x > 800 - 100) obstacle.dx *= -1;
 			if (obstacle.y < 0 || obstacle.y > 600 - 30) obstacle.dy *= -1;
 		});
-
-		const data = {
-			event: 'update_obstacles',
-			obstacles: this.obstacles,
-			solution: this.solution,
-		};
-		this.broadcast(data);
+		this.broadcastUpdate();
 	}
 
-	async checkCollisions(phoneId: string, x: number, y: number): void {
+	async handleCollisions(phoneId: string, x: number, y: number) {
 		this.obstacles = this.obstacles.filter((obstacle) => {
 			const distX = Math.abs(x - obstacle.x - 50);
 			const distY = Math.abs(y - obstacle.y - 15);
@@ -152,12 +145,9 @@ export class GameDurableObject extends DurableObject {
 		});
 
 		if (this.obstacles.length === 0) {
-			const sentence = this.getCurrentSentence();
 			await this.completeCurrentSentence();
 			await this.initializeObstacles();
 		}
-
-		this.updateObstacles();
 	}
 
 	sendPointsEarned(phoneId: string, points: number): void {
@@ -218,6 +208,7 @@ export class GameDurableObject extends DurableObject {
 			event: 'game_updated',
 			players,
 			solution: this.solution,
+			obstacles: this.obstacles
 		};
 		this.broadcast(data);
 	}
@@ -242,15 +233,15 @@ export class GameDurableObject extends DurableObject {
 					break;
 				case 'display_connected':
 					this.displays.add(server);
-					this.updateObstacles();
 					break;
 				case 'player_moved':
-					this.checkCollisions(data.id, data.x, data.y);
+					this.handleCollisions(data.id, data.x, data.y);
 					break;
 				case 'sentence_added':
 					this.initializeObstacles();
 					break;
 				default:
+					console.log('Unhandled event', data);
 					this.broadcast(data, server);
 					break;
 			}
@@ -264,6 +255,10 @@ export class GameDurableObject extends DurableObject {
 			});
 			this.displays.delete(server);
 			console.log('Connection closed.');
+			if (this.displays.size === 0 && this.phones.size === 0) {
+				this.stopObstacleMovement();
+				console.log('Game over');
+			}
 		});
 
 		return new Response(null, { status: 101, webSocket: client });

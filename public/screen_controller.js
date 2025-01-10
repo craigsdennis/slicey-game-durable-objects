@@ -27,37 +27,12 @@ const sentenceCtx = sentenceCanvas.getContext('2d');
 let phonesData = {}; // Store data for multiple phones
 let phoneDisplays = {}; // Store PhoneMovementDisplay instances for phones
 let players = []; // Player data
-let obstacles = []; // Obstacles to bounce
+let obstacles = []; // Bouncing words
 let solution = []; // Initialize solution with placeholders
 let displaySentence = null; // Sentence to temporarily display
 let displayTimeout = null; // Timeout for clearing the sentence display
 
 // Function to draw the solution
-function drawSolution() {
-    backgroundCtx.fillStyle = 'white';
-    backgroundCtx.font = '20px Inter, "SF Pro", Arial, sans-serif';
-    backgroundCtx.textAlign = 'center';
-    const solutionText = solution.map(word => (word ? word : '_')).join(' ');
-    backgroundCtx.fillText(solutionText, backgroundCanvas.width / 2, backgroundCanvas.height - 50);
-}
-
-// Function to draw obstacles
-function drawObstacles() {
-    backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
-    obstacles.forEach(obstacle => {
-        const textWidth = backgroundCtx.measureText(obstacle.word).width;
-        const padding = 20;
-        const rectWidth = textWidth + padding;
-        const rectHeight = 30;
-
-        backgroundCtx.fillStyle = obstacle.color;
-        backgroundCtx.fillRect(obstacle.x, obstacle.y, rectWidth, rectHeight);
-        backgroundCtx.fillStyle = 'white';
-        backgroundCtx.font = '14px Inter, "SF Pro", Arial, sans-serif';
-        backgroundCtx.textAlign = 'center';
-        backgroundCtx.fillText(obstacle.word, obstacle.x + rectWidth / 2, obstacle.y + rectHeight / 2 + 5);
-    });
-}
 
 function resetCanvases() {
     console.log("Resetting canvases");
@@ -84,45 +59,64 @@ function resetCanvases() {
     console.log("All canvases cleared and transparency applied.");
 }
 
+function drawSolution() {
+    backgroundCtx.fillStyle = 'white';
+    backgroundCtx.font = '20px Inter, "SF Pro", Arial, sans-serif';
+    backgroundCtx.textAlign = 'center';
+    const solutionText = solution.map(word => (word ? word : '_')).join(' ');
+    backgroundCtx.fillText(solutionText, backgroundCanvas.width / 2, backgroundCanvas.height - 50);
+}
+
+// Function to draw obstacles
+function drawObstacles() {
+    backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+    obstacles.forEach(obstacle => {
+        const textWidth = backgroundCtx.measureText(obstacle.word).width;
+        const padding = 20;
+        const rectWidth = textWidth + padding;
+        const rectHeight = 30;
+
+        backgroundCtx.fillStyle = obstacle.color;
+        backgroundCtx.fillRect(obstacle.x, obstacle.y, rectWidth, rectHeight);
+        backgroundCtx.fillStyle = 'white';
+        backgroundCtx.font = '14px Inter, "SF Pro", Arial, sans-serif';
+        backgroundCtx.textAlign = 'center';
+        backgroundCtx.fillText(obstacle.word, obstacle.x + rectWidth / 2, obstacle.y + rectHeight / 2 + 5);
+    });
+}
+
+
 // Function to temporarily display a completed sentence with word wrapping
 function drawCompletedSentence() {
     resetCanvases();
-    if (displaySentence) {
-        sentenceCtx.fillStyle = 'white';
-        sentenceCtx.font = '40px Inter, "SF Pro", Arial, sans-serif';
-        sentenceCtx.textAlign = 'center';
+	sentenceCtx.fillStyle = 'white';
+	sentenceCtx.font = '40px Inter, "SF Pro", Arial, sans-serif';
+	sentenceCtx.textAlign = 'center';
 
-        const words = displaySentence.split(' ');
-        const lineHeight = 50;
-        const maxWidth = sentenceCanvas.width * 0.8;
-        let line = '';
-        let y = sentenceCanvas.height / 2 - lineHeight;
+	const words = displaySentence.split(' ');
+	const lineHeight = 50;
+	const maxWidth = sentenceCanvas.width * 0.8;
+	let line = '';
+	let y = sentenceCanvas.height / 2 - lineHeight;
 
-        for (let i = 0; i < words.length; i++) {
-            const testLine = line + words[i] + ' ';
-            const testWidth = sentenceCtx.measureText(testLine).width;
-            if (testWidth > maxWidth && line) {
-                sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
-                line = words[i] + ' ';
-                y += lineHeight;
-            } else {
-                line = testLine;
-            }
-        }
-        sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
-    }
+	for (let i = 0; i < words.length; i++) {
+		const testLine = line + words[i] + ' ';
+		const testWidth = sentenceCtx.measureText(testLine).width;
+		if (testWidth > maxWidth && line) {
+			sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
+			line = words[i] + ' ';
+			y += lineHeight;
+		} else {
+			line = testLine;
+		}
+	}
+	sentenceCtx.fillText(line, sentenceCanvas.width / 2, y);
 }
 
-// Function to update the display
-function updateDisplay() {
-    if (displaySentence) {
-        drawCompletedSentence();
-        return;
-    }
-    // Clear the phone canvas for a fresh frame
+
+function drawPlayers() {
     phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
 
-    // Ensure phones are drawn last
     Object.values(phonesData).forEach(phone => {
         if (!phoneDisplays[phone.id]) {
             phoneDisplays[phone.id] = new PhoneMovementDisplay('phoneCanvas', '📱', phone.color || 'blue');
@@ -148,41 +142,43 @@ function updateDisplay() {
             }));
         }
     });
+}
 
-    requestAnimationFrame(updateDisplay);
+function refreshDisplay() {
+	if (displaySentence && !displayTimeout) {
+		drawCompletedSentence();
+		displayTimeout = setTimeout(() => {
+			clearTimeout(displayTimeout);
+			displayTimeout = null;
+			displaySentence = null;
+			resetCanvases();
+			refreshDisplay();
+		}, 3000);
+		return;
+	}
+	drawPlayers();
+	drawObstacles();
+	drawSolution();
+	requestAnimationFrame(refreshDisplay);
 }
 
 // Start animation loop
-updateDisplay();
+refreshDisplay();
 
 // Handle incoming WebSocket messages
 socket.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
 
-    if (data.event === 'update_obstacles') {
-        obstacles = data.obstacles;
-        solution = data.solution;
-        drawObstacles(); // Redraw obstacles when updated
-        drawSolution();
-    }
-
     if (data.event === 'game_updated') {
         players = data.players;
+		obstacles = data.obstacles;
         solution = data.solution;
-        updatePlayers();
+		// Update scoreboard
+		updateLeaderBoard();
     }
 
     if (data.event === 'sentence_completed') {
         displaySentence = data.sentence;
-        clearTimeout(displayTimeout);
-        drawCompletedSentence();
-        displayTimeout = setTimeout(() => {
-            displaySentence = null;
-            resetCanvases();
-            drawObstacles();
-            drawSolution();
-            updateDisplay();
-        }, 3000); // Display the sentence for 3 seconds
     }
 
     if (data.id) { // Assume each phone sends a unique ID
@@ -201,7 +197,7 @@ socket.addEventListener('close', () => {
 });
 
 // Function to update player list
-function updatePlayers() {
+function updateLeaderBoard() {
     const playersDiv = document.getElementById('players');
     playersDiv.innerHTML = '';
 
