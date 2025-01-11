@@ -29,3 +29,37 @@ export function randomHexColorWithWhiteText(): string {
         }
     }
 }
+
+/**
+ * Generate a color that is distinct from a given set of colors.
+ * @param {string[]} existingColors - Array of existing hex colors.
+ * @returns {string} - A hex color distinct from the provided colors.
+ */
+export function generateDistinctColor(existingColors: string[]): string {
+    const parseHex = (hex: string) => {
+        const bigint = parseInt(hex.slice(1), 16);
+        return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+    };
+
+    const colorDistance = (rgb1: number[], rgb2: number[]) => {
+        return Math.sqrt(
+            Math.pow(rgb1[0] - rgb2[0], 2) +
+            Math.pow(rgb1[1] - rgb2[1], 2) +
+            Math.pow(rgb1[2] - rgb2[2], 2)
+        );
+    };
+
+    while (true) {
+        const newColor = randomHexColorWithWhiteText();
+        const newColorRgb = parseHex(newColor);
+
+        const minDistance = existingColors.reduce((min, color) => {
+            const colorRgb = parseHex(color);
+            return Math.min(min, colorDistance(newColorRgb, colorRgb));
+        }, Infinity);
+
+        if (minDistance > 100) { // Adjust threshold as needed
+            return newColor;
+        }
+    }
+}

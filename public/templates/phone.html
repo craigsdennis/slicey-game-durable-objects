@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Controller</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="content-wrapper">
-        <main class="container">
-            <div class="game-code">Game Code: <span id="code">ABCD</span></div>
-            <input type="text" id="playerName" value="New Player" placeholder="Enter your name" class="player-input" />
-        </main>
-    </div>
-    <footer>
-        <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
-        <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
-    </footer>
-    <script src="/phone_controller.js"></script>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Game Controller</title>
+		<link rel="stylesheet" href="/styles.css" />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+	</head>
+	<body class="phone">
+		<div class="content-wrapper">
+			<div class="game-code">You're playing game: <span id="code">ABCD</span></div>
+			<form>
+				<input
+					type="text"
+					id="playerName"
+					value="New Player"
+					placeholder="Enter your name"
+					class="player-input"
+				/>
+			</form>
+			<p>Hold your 📱 flat and point it at the screen 👆</p>
+			<p>Rotate left and right, and up and down to move the phone in the circle matching your color</p>
+		</div>
+		<footer>
+			<p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
+			<p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
+		</footer>
+		<script src="/phone_controller.js"></script>
+	</body>
 </html>

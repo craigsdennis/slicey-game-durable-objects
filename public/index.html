@@ -8,20 +8,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <main class="content-wrapper">
+    <main class="content-wrapper" style="text-align: center; padding: 20px;">
         <div class="container">
             <h1>Welcome to Slicey</h1>
-            <form id="gameForm">
-				<div>
-					<a href="/create" id="createGame">Create Game</a>
-				</div>
-				<div>
-					<input type="text" id="gameId" placeholder="Enter Game ID (e.g., ABCD)" maxlength="4" pattern="[A-Z]{4}" title="4 uppercase letters" /><button type="button" id="joinGame">Join Game</button>
-				</div>
+            <p style="margin-bottom: 20px;">A cutting-edge multiplayer game where any way you slice it, it's fun!</p>
+            <form id="gameForm" style="display: inline-block; text-align: left;">
+                <div style="margin-bottom: 20px;">
+                    <button type="button" id="createGame" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Create Game</button>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <input
+                        type="text"
+                        id="gameId"
+                        placeholder="Enter Game ID (e.g., ABCD)"
+                        maxlength="4"
+                        pattern="[A-Z]{4}"
+                        title="4 uppercase letters"
+                        style="padding: 10px; font-size: 16px; text-align: center; width: 100%; max-width: 300px;"
+                    />
+                    <button type="button" id="joinGame" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Join Game</button>
+                </div>
             </form>
         </div>
     </main>
-    <footer>
+    <footer style="margin-top: 20px;">
         <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
         <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
     </footer>
@@ -33,6 +43,10 @@
             } else {
                 alert('Please enter a valid 4-character Game ID (A-Z).');
             }
+        });
+
+        document.getElementById('createGame').addEventListener('click', () => {
+            window.location.href = '/create';
         });
     </script>
 </body>

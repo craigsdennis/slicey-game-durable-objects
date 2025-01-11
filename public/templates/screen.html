@@ -3,33 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slicey Display</title>
+    <title>Slicey</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-pUhApVQtLbnpLtJn6DuzDD5o2xtmLJnJ7oBoMsBnzOkVkpqofGLGPaBJ6ayD2zQe3lCgCibhJBi4cj5wAxwVKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="content-wrapper">
-        <div class="flex-row">
-            <aside class="aside">
-                <h1>Slicey</h1>
-                <div class="game-code">Code: <span id="gameCode">ABCD</span></div>
-                <canvas id="qr"></canvas>
-                <div class="player-list">
+<body class="screen">
+    <div class="content-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+        <header style="text-align: center; margin-bottom: 5px;">
+            <h1>Slicey</h1>
+            <p style="font-style: italic; font-size: 18px;">A Durable Object Hosted Multiplayer Game</p>
+        </header>
+        <div class="main-content" style="display: flex; align-items: flex-start; gap: 20px;">
+            <aside style="flex: 0 1 300px;">
+                <div class="game-info" style="text-align: center; margin-bottom: 20px;">
+                    <p>Game Code: <span id="gameCode" style="font-weight: bold;">ABCD</span></p>
+                    <canvas id="qr" style="margin: auto; display: block;"></canvas>
+                </div>
+                <div class="leaderboard" style="margin-top: 20px;">
                     <h3>Leaderboard</h3>
-                    <div id="players">
-                        <!-- Players and points will be dynamically added here -->
+                    <div id="players" style="margin-top: 10px;">
+                        <!-- Leaderboard will populate here -->
                     </div>
                 </div>
             </aside>
-            <main class="main">
-                <canvas id="backgroundCanvas" width="800" height="600"></canvas>
-                <canvas id="phoneCanvas" width="800" height="600"></canvas>
-                <canvas id="sentenceCanvas" width="800" height="600"></canvas>
+            <main style="position: relative; width: 800px; height: 600px;">
+                <canvas id="backgroundCanvas" width="800" height="600" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas id="phoneCanvas" width="800" height="600" style="position: absolute; top: 0; left: 0;"></canvas>
+                <canvas id="sentenceCanvas" width="800" height="600" style="position: absolute; top: 0; left: 0;"></canvas>
             </main>
         </div>
     </div>
-    <footer>
+    <footer style="margin-top: 20px; text-align: center;">
         <p>Built with 🧡 on <a href="https://developers.cloudflare.com">The Cloudflare Stack</a>.</p>
         <p>👀 <a href="https://github.com/craigsdennis/slicey-game-durable-objects">the code</a>.</p>
     </footer>

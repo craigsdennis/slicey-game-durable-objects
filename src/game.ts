@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { randomHexColorWithWhiteText } from './utils';
+import { generateDistinctColor, randomHexColorWithWhiteText } from './utils';
 
 export class GameDurableObject extends DurableObject {
 	phones: Map<string, WebSocket>;
@@ -164,7 +164,12 @@ export class GameDurableObject extends DurableObject {
 
 	async addPlayer(data: { id: string; playerName: string }) {
 		console.log('Adding player', data);
-		const hex_code = randomHexColorWithWhiteText();
+		const existingColors = [];
+		const cursor = this.sql.exec(`SELECT color FROM players`);
+		for (const row of cursor) {
+			existingColors.push(row.color as string);
+		}
+		const hex_code = generateDistinctColor(existingColors);
 		const player = this.sql
 			.exec('INSERT INTO players (id, name, color, score) VALUES (?, ?, ?, ?) RETURNING *;', data.id, data.playerName, hex_code, 0)
 			.one();

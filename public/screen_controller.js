@@ -119,6 +119,7 @@ function drawPlayers() {
 
     Object.values(phonesData).forEach(phone => {
         if (!phoneDisplays[phone.id]) {
+			console.log(`Setting phone color`, phone.color);
             phoneDisplays[phone.id] = new PhoneMovementDisplay('phoneCanvas', '📱', phone.color || 'blue');
         }
 
@@ -176,6 +177,15 @@ socket.addEventListener('message', (event) => {
 		// Update scoreboard
 		updateLeaderBoard();
     }
+
+	if (data.event === 'update_color') {
+		console.log('update_color', data);
+		const pd = phoneDisplays[data.id];
+		if (pd) {
+			pd.color = data.color;
+			pd.customizeAppearance({color: data.color});
+		}
+	}
 
     if (data.event === 'sentence_completed') {
         displaySentence = data.sentence;

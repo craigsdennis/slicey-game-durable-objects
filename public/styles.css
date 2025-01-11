@@ -5,45 +5,42 @@ body {
     font-family: 'Inter', 'SF Pro', Arial, sans-serif;
     background-color: #121212;
     color: #ffffff;
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
-}
-
-.content-wrapper {
-    flex: 1;
     display: flex;
-    flex-direction: row; /* Align items horizontally */
-    justify-content: center; /* Center horizontally */
-    align-items: flex-start; /* Align items at the top */
-    gap: 20px;
+    flex-direction: column;
 }
 
-aside {
-    flex: 1;
-    padding: 10px;
+.phone .content-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-main {
-    flex: 3;
-    display: flex;
     justify-content: center;
-    align-items: center;
-    position: relative;
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    flex: 1;
 }
 
-.container {
+.phone aside {
+    width: 100%;
+    padding: 0;
     text-align: center;
 }
 
-.canvas-wrapper {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 0 auto;
+.phone main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone .canvas-wrapper {
+    width: 100%;
+    height: auto;
+    margin: 0;
 }
 
 canvas {
@@ -59,7 +56,7 @@ canvas {
 
 #sentenceCanvas {
     position: absolute;
-    z-index: 3; /* Ensure it is on top of all other layers */
+    z-index: 3;
 }
 
 #phoneCanvas {

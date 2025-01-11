@@ -65,7 +65,7 @@ class PhoneMovementDisplay {
         this.context.arc(0, 0, this.radius, 0, Math.PI * 2);
         this.context.fillStyle = this.color;
         this.context.fill();
-        this.context.strokeStyle = "#ffffff";
+        this.context.strokeStyle = this.color;
         this.context.lineWidth = 2;
         this.context.stroke();
         this.context.restore();
@@ -76,7 +76,7 @@ class PhoneMovementDisplay {
         this.context.font = `${this.radius * 2}px Arial`; // Increased size for better visibility
         this.context.textAlign = "center";
         this.context.textBaseline = "middle";
-        this.context.fillStyle = "#ffffff";
+        this.context.fillStyle = this.color;
         this.context.fillText(this.icon, 0, 0);
         this.context.restore();
     }
