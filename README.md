@@ -1,8 +1,10 @@
 # Slicey
 
-This was a Hack Week project to produce a live event educational tool for Durable Objects that is loosely based on Fruit Ninja.
+This was for a [Cloudflare](https://x.com/CloudflareDevs) Hack Week project to produce an educational game that we could use at [live events](https://meet-us.pages.dev) to help describe [Durable Objects](https://developers.cloudflare.com/durable-objects). It started as an attempt to build Fruit Ninja.
 
-It uses your phone for a controller.
+It uses your phone for a controller, which is something I've always wanted. This was 100% built with OpenAI GPT4o + Canvas. I went into this not knowing how to build something like this, so AI really opened things up for me. All I knew was the word tween.
+
+AI even generated this Mermaid diagram:
 
 ```mermaid
 sequenceDiagram
@@ -10,7 +12,6 @@ sequenceDiagram
     participant DO as Game Durable Object
     participant Display as Display Screen
 
-    Note over Phone,DO,Display: WebSocket-based communication
 
     Phone->>DO: Connect via WebSocket<br>Send: {event: "phone_connected", id: "PhoneID"}
     DO->>Phone: Assign color<br>{event: "assign_color", color: "#HEX"}
@@ -34,6 +35,9 @@ sequenceDiagram
     Note over DO: All state changes are stored in Durable Object's SQLite
 ```
 
+**It is a bonkers time to be a builder!**
+
 ## TODO
 
 - [ ] Make specific for events
+- [ ] Add tracking (for reporting on events)
